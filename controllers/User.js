@@ -87,7 +87,6 @@ export const Login = async (req, res) => {
 export const UpdateMatches = async (req, res) => {
   const { result } = req.body;
   const id = req.user;
-  console.log(result)
   try {
     if (!result) {
       res

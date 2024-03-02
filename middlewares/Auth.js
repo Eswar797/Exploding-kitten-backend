@@ -7,13 +7,26 @@ export const Auth = async (req, res, next) => {
     if (token) {
       token = token.split(" ")[1];
       if (token) {
-        let { id } = await jwt.decode(token, process.env.SECRET_KEY);
-        let user = await User.findById(id);
-        if (user) {
-          req.user = user._id;
-          next();
+        let decodeId = await jwt.decode(
+          token.toString(),
+          process.env.SECRET_KEY
+        );
+        if (!decodeId) {
+          res
+            .status(403)
+            .json({
+              message: "Unable To Verify Please Log in Again",
+            });
         } else {
-          res.status(403).json({ message: "User doesn't exist" });
+          let user = await User.findById(decodeId.id);
+          if (user) {
+            req.user = user._id;
+            next();
+          } else {
+            res
+              .status(403)
+              .json({ message: "User doesn't exist", success: false });
+          }
         }
       } else {
         res.status(403).json({ message: "Invalid Token" });
